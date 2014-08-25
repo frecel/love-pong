@@ -1,15 +1,45 @@
-state = 0 -- 0 is menu 1 is game
+state = 0 -- 0 is main menu 1 is options 2 is game
+
+--menu stuff
+highlighted = 1
+highlightpos = 200
+
+--ball stuff
+ball = {}
+ball.x = 375
+ball.y = 275
+ball.speed = 3 -- speed of the ball keep less then 25 otherwise it may fly through paddles
+ball.addx = ball.speed
+ball.addy = ball.speed
+
+
+--paddle stuff
+paddlespeed = 3
+paddleL = {}
+paddleL.x = 20
+paddleL.y = 225
+
+paddleR = {}
+paddleR.x = 755
+paddleR.y = 225
+--scores
+score = {}
+score.l = 0
+score.r = 0
+  
 
 
 function menu()
   function love.keypressed(key)
     if key == "down" and highlighted < 3 then
       highlighted = highlighted + 1
-      highlightpos = highlightpos + 50
+      highlightpos = highlightpos + 70
     elseif key == "up" and highlighted > 1 then
       highlighted = highlighted -1
-      highlightpos = highlightpos - 50
+      highlightpos = highlightpos - 70
     elseif key == "return" and highlighted == 1 then
+      state = 2
+    elseif key == "return" and highlighted == 2 then
       state = 1
     elseif key == "return" and highlighted == 3 then
       love.event.quit()
@@ -19,54 +49,76 @@ end
 
 function menudraw()
     love.graphics.setColor(45, 154, 255, 50)
-    love.graphics.rectangle("fill", 250, highlightpos, 400, 50)
+    love.graphics.rectangle("fill", 150, highlightpos, 500, 60)
     love.graphics.setColor(0,0,0)
     love.graphics.setNewFont(100)
-    love.graphics.print("Love-Pong", 200, 50)
+    love.graphics.print("Love-Pong", 150, 50)
     love.graphics.setNewFont(50)
-    love.graphics.print("Start Game", 300, 150)
-    love.graphics.print("Options", 300, 200)
-    love.graphics.print("Quit", 300, 250)
+    love.graphics.print("Start Game", 200, 200)
+    love.graphics.print("Options", 200, 270)
+    love.graphics.print("Quit", 200, 340)
+end
+
+function options()
+  function love.keypressed(key)
+    if key == "down" and highlighted < 3 then
+      highlighted = highlighted + 1
+      highlightpos = highlightpos + 70
+    elseif key == "up" and highlighted > 1 then
+      highlighted = highlighted -1
+      highlightpos = highlightpos - 70
+    elseif key == "left" and highlighted == 1 and ball.speed > 1 then
+      ball.speed = ball.speed -1
+      ball.addx = ball.speed
+      ball.addy = ball.speed
+    elseif key == "right" and highlighted == 1 then
+      ball.speed = ball.speed + 1
+      ball.addx = ball.speed
+      ball.addy = ball.speed
+    elseif key == "left" and highlighted == 2 and paddlespeed > 1 then
+      paddlespeed = paddlespeed - 1
+    elseif key == "right" and highlighted == 2 then
+      paddlespeed = paddlespeed + 1
+    elseif key == "return" and highlighted == 3 then
+      state = 0
+    end
+  end
+end
+
+function optionsdraw()
+    love.graphics.setColor(45, 154, 255, 50)
+    love.graphics.rectangle("fill", 150, highlightpos, 500, 60)
+    love.graphics.setColor(0,0,0)
+    love.graphics.setNewFont(100)
+    love.graphics.print("Love-Pong", 150, 50)
+    love.graphics.setNewFont(50)
+    love.graphics.print("Ball Speed:", 200, 200)
+    love.graphics.print(ball.speed, 600, 200)
+    love.graphics.print("Paddle Speed:", 200, 270)
+    love.graphics.print(paddlespeed, 600, 270)
+    love.graphics.print("Back", 200, 340)  
 end
 
 function love.load()
-  --menu stuff
-  highlighted = 1
-  highlightpos = 150
-  
-  
-  --ball image and starting coordinates
-  ball = {}
   ball.image = love.graphics.newImage("gfx/ball.png")
-  ball.x = 375
-  ball.y = 275
-  ball.speed = 3 -- speed of the ball keep less then 25 otherwise it may fly through paddles
-  paddlespeed = 3
-  ball.addx = ball.speed
-  ball.addy = ball.speed
+
   --left paddle and starting coordinates
-  paddleL = {}
+
   paddleL.image = love.graphics.newImage("gfx/paddle.png")
-  paddleL.x = 20
-  paddleL.y = 225
+
   --right paddle and starting coordinates
-  paddleR = {}
+
   paddleR.image = love.graphics.newImage("gfx/paddle.png")
-  paddleR.x = 755
-  paddleR.y = 225
-  --scores
-  score = {}
-  score.l = 0
-  score.r = 0
+
   love.graphics.setBackgroundColor(255, 255, 255)
 end
 
 function love.update(dt)
   if state == 0 then
     menu()
-  end
-   
-  if state == 1 then
+  elseif state == 1 then 
+    options()
+  elseif state == 2 then
     function love.keypressed(key)
       if key == "escape" then
 	state = 0
@@ -91,7 +143,7 @@ function love.update(dt)
   
     --bouce off top edges  
     if ball.y >= 550 then
-      ball.addy = -3
+      ball.addy = -ball.speed
     elseif ball.y <= 0 then
       ball.addy = ball.speed
     end
@@ -106,12 +158,12 @@ function love.update(dt)
     end
   
     --scoring  
-    if ball.x == 0 then
+    if ball.x <= 0 then
       score.r = score.r + 1
       ball.x = 375
       ball.y = 275
       ball.addx = ball.speed
-    elseif ball.x == 750 then
+    elseif ball.x >= 750 then
       score.l = score.l + 1
       ball.x = 375
       ball.y = 275
@@ -123,9 +175,9 @@ end
 function love.draw()
   if state == 0 then
     menudraw()
-  end
-  
-  if state == 1 then
+  elseif state == 1 then
+    optionsdraw()
+  elseif state == 2 then
     love.graphics.setColor(0,0,0)
     love.graphics.setNewFont(40)
     love.graphics.print(score.l, 350, 10)
