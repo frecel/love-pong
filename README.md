@@ -3,4 +3,11 @@ love-pong
 
 Simple pong game created with love2d framework
 
-Use a and z to move the left paddle and k and m for the right.
+Use A and Z to move the left paddle and K and M for the right.
+
+You need love2d installed to run this game on linux http://www.love2d.org/
+
+Then simply run
+```
+love love-pong.love
+```
